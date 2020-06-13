@@ -145,6 +145,7 @@ function GameView() {
 
   self.objectsCombine=function(row, column, matchRowArray, matchColumnArray) {
     playSound(matchSound);
+    window.navigator.vibrate(100);
     for (var i=0; i<matchRowArray.length; i++) {
       //объекты находятся в одном ряду
         var elementID=String(matchRowArray[i])+String(matchColumnArray[i]);
