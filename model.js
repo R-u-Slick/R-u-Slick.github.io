@@ -85,10 +85,33 @@ function GameModel() {
 
   self.totalPoints = 0;
 
+  self.spaState ={};
+
+  self.spaStateChanged=function(){
+    switch (self.spaState.pagename) {
+      case 'Rules':
+        myView.showInfo('Rules');
+        break;
+      case 'Main':
+        myView.hideInfo();
+        break;
+      case 'Records':
+        myView.showInfo('Records');
+        break;
+    }
+  }
+
   self.start=function(view) {
       myView=view;
       self.mapGenerate();
       self.currentObject=self.generateRandom(objectArray);
+  }
+
+  self.newGame=function() {
+    self.mapGenerate();
+    self.currentObject=self.generateRandom(objectArray);
+    self.totalPoints=0;
+    myView.update();
   }
 
   self.updateView=function() {
@@ -329,10 +352,21 @@ function GameModel() {
         case 3:
           self.totalPoints+=Math.round(nextObject.points*1.2);
           break;
-
         case 4:
           self.totalPoints+=Math.round(nextObject.points*1.5);
           break;
+        case 5:
+          self.totalPoints+=Math.round(nextObject.points*1.6);
+          break;
+        case 6:
+          self.totalPoints+=Math.round(nextObject.points*1.7);
+          break;
+        case 7:
+          self.totalPoints+=Math.round(nextObject.points*1.8);
+          break;
+        case 8:
+          self.totalPoints+=Math.round(nextObject.points*2);
+          break;                   
       }
     }
     else {
@@ -379,6 +413,14 @@ function GameModel() {
   
   //функция генерации новой карты
   self.mapGenerate=function() {
+    self.map = [
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0, 0]
+    ] 
     var objectQuantity = 10;
     var count = 0;
     while (count<objectQuantity) {
@@ -416,6 +458,7 @@ function GameModel() {
     return self.map;
   }
 
+  
   self.nextMove=function(row, column) {
     self.map[row][column]=self.currentObject;
     self.totalPoints+=self.currentObject.points;
