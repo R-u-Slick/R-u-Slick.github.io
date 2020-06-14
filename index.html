@@ -10,9 +10,19 @@
     <script src="model.js"></script>
     <script src="view.js"></script>
     <script src="controller.js"></script>
-    <div class="wrapper">
+    <div class="menu">
+      <div class="new-game">
+        <button class="new-game-button">Новая игра</button>
+      </div>
+      <div class="rules">
+        <button class="rules-button">Правила</button>
+      </div>
+      <div class="records">
+        <button class="records-button">Таблица рекордов</button>
+      </div>
+    </div>
+    <div class="game-main">
       <div class="upper-menu"> 
-        <div class="menu"></div>
         <div class="points-counter">0</div>
       </div>
       <div class='container'>
@@ -58,6 +68,10 @@
         <div id="54" class='cell'></div>
         <div id="55" class='cell'></div>
       </div>
+      <div class='current-item'>
+        <div class='current-item__text'>Текущий объект: </div>
+        <img class='current-item-image'>
+      </div>
     </div>
     <script>
       var game=new GameModel;
@@ -67,10 +81,7 @@
       game.start(view);
       view.start(game);
       controller.start(game, gameField);
-      var clickAudio=new Audio;
-    // результат canPlayType: "probably" - скорее всего, "maybe" - неизвестно, "" - нет
-    console.log( clickAudio.canPlayType("audio/ogg; codecs=vorbis") );
-    console.log( clickAudio.canPlayType("audio/mpeg") );
+      
     </script>
   </body>
 </html>
