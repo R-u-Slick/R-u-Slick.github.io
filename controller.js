@@ -11,7 +11,59 @@ function GameController () {
   self.start=function(model,field) {
     myModel=model;
     myField=field;
+    window.onhashchange=switchToStateFromURLHash;
     self.listenersUpdate(myField);
+    self.menuListenersAdd();
+    
+  }
+
+  function switchToStateFromURLHash() {
+    var URLHash=window.location.hash;
+    // убираем из закладки УРЛа решётку
+    var stateStr=URLHash.substr(1);
+
+    if (stateStr!="" ) { // если закладка непустая, читаем из неё состояние и отображаем
+      myModel.spaState={ pagename: stateStr}; // первая часть закладки - номер страницы
+    }
+    else {
+      myModel.spaState={pagename:'Main'};  // иначе показываем главную страницу
+    }
+    myModel.spaStateChanged();
+    if (document.getElementById('ok-button')) {
+      var okButton=document.getElementById('ok-button');
+      okButton.addEventListener('click', self.switchToMainPage);
+    }
+  }
+
+  self.menuListenersAdd=function() {
+    var newGameButton=document.querySelector('.new-game-button');
+    newGameButton.addEventListener('click', self.newGameListener);
+    var rulesButton=document.querySelector('.rules-button');
+    rulesButton.addEventListener('click', self.switchToRulesPage);
+    var recordsButton=document.querySelector('.records-button');
+    recordsButton.addEventListener('click', self.switchToRecordsPage);
+  }
+
+  self.switchToState=function(newState) {
+    var stateStr=newState.pagename;
+    location.hash=stateStr;
+  }
+
+  self.switchToRulesPage=function() {
+    self.switchToState( {pagename:'Rules'} );
+  }
+  self.switchToMainPage=function() {
+    console.log('ok')
+    self.switchToState( {pagename:'Main'} );
+  }
+  self.switchToRecordsPage=function() {
+    self.switchToState({pagename:'Records'});
+  }
+
+  self.newGameListener=function() {
+    myModel.newGame();
+    self.switchToMainPage();
+    self.listenersUpdate();
     
   }
 
@@ -76,8 +128,5 @@ function GameController () {
     }
   }
 
-
-
- 
 
 }
