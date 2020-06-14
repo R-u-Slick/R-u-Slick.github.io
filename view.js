@@ -6,6 +6,8 @@ function GameView() {
   var placeBearSound=new Audio('sound/bear.mp3');
   var placeObjectSound=new Audio('sound/objectPlace.mp3');
   var matchSound=new Audio('sound/match.mp3');
+  var ambientSound=new Audio('sound/ambient.mp3');
+  ambientSound.loop=true;
 
   function playSound(sound) {
     sound.currentTime=0; // в секундах
@@ -15,9 +17,84 @@ function GameView() {
   self.start=function(model) {
     myModel=model;
     self.update();
+    playSound(ambientSound);
+  }
+
+  self.showInfo=function(infoType) {
+    if (!document.getElementById('info-container')) {  
+      var gameMain=document.querySelector('.game-main');
+      var infoContainer=document.createElement('div');
+      infoContainer.setAttribute('id','info-container');
+      infoContainer.style.position='absolute';
+      infoContainer.style.top='-1100px';
+      infoContainer.style.left='2px';
+      infoContainer.style.width='900px';
+      infoContainer.style.height='900px';
+      infoContainer.style.backgroundColor='#daddca';
+      infoContainer.style.zIndex=10;
+      infoContainer.style.animationName='info-show';
+      infoContainer.style.animationDuration='0.5s';
+      infoContainer.style.animationTimingFunction='linear';
+      infoContainer.style.animationFillMode='forwards';
+      gameMain.appendChild(infoContainer);
+      var infoHeader=document.createElement('h2');
+      infoHeader.setAttribute('id','info-header');
+      infoHeader.style.fontFamily='Arial, Helvetica, sans-serif';
+      infoHeader.style.textAlign='center';
+      infoHeader.style.color='#394f4b';
+      infoHeader.style.padding='200px 20px 50px 20px';    
+      infoContainer.appendChild(infoHeader);
+      var infoContent=document.createElement('div');
+      infoContent.setAttribute('id','info-content');
+      infoContent.style.fontFamily='Arial, Helvetica, sans-serif';
+      infoContent.style.textAlign='justify';
+      infoContent.style.padding='0 50px';    
+      infoContent.style.color='#394f4b';    
+      infoContainer.appendChild(infoContent);
+      var okButton=document.createElement('button');
+      okButton.setAttribute('id','ok-button');
+      okButton.textContent='OK';
+      okButton.style.display='block';
+      okButton.style.margin='150px auto 0 auto';
+      okButton.style.textAlign='center';
+      infoContainer.appendChild(okButton);   
+    }
+
+      switch (infoType) {
+        case 'Rules':
+          var infoHeader=document.getElementById('info-header');
+          infoHeader.textContent='Правила';
+          var infoContent=document.getElementById('info-content');
+          infoContent.textContent='Triple Town - оригинальная игра-паззл, в которой вам нужно построить большой город. Чем больше ваш город, тем больше очков вы получите. Вы строите город посредством соединения трех элементов: из трех трав получите куст, из трех кустов - дерево, и так далее, пока вы не заполните город домами, храмами и замками. Вам будут постоянно мешать медведи, которые, судя по всему, против постройки города. Насколько большой будет город вашей мечты, когда экран заполнится и игра закончится?';
+          break;
+
+        case 'Records':
+          var infoHeader=document.getElementById('info-header');
+          infoHeader.textContent='Таблица рекордов'
+          var infoContent=document.getElementById('info-content');
+          infoContent.textContent='Рекордсмены';
+      }     
+  }
+
+  self.hideInfo=function() {
+    if (document.getElementById('info-container')) {
+      var infoContainer=document.getElementById('info-container');
+      infoContainer.style.animationName='info-hide';
+      infoContainer.style.animationDuration='0.5s';
+      infoContainer.style.animationTimingFunction='linear';
+      infoContainer.style.animationFillMode='forwards';
+      setTimeout(removeInfo, 500);
+    }
+    function removeInfo() {    
+      var infoContainer=document.getElementById('info-container');
+      var gameMain=document.querySelector('.game-main');
+      gameMain.removeChild(infoContainer);
+    }
   }
 
   self.update=function() {
+    var currentItemImage=document.querySelector('.current-item-image');
+    currentItemImage.setAttribute('src', myModel.currentObject.image);
     var totalPoints=document.querySelector('.points-counter');
     totalPoints.textContent=myModel.totalPoints;
     for (var i=0; i<myModel.map.length;i++) {
