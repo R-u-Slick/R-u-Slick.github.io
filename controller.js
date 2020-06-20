@@ -9,7 +9,7 @@ function GameController () {
   var stop = null;
   var startSwipe;
   var endSwipe;
-
+  //ИНИЦИАЛИЗАЦИЯ
   self.start=function(model,field) {
     myModel=model;
     myField=field;
@@ -21,12 +21,13 @@ function GameController () {
 		document.addEventListener('touchstart', self.tStart);
 		document.addEventListener('touchend', self.tEnd);	
   }
-
+  
+  //Обработчие начала свайпа
   self.tStart=function(EO) {
     EO = EO || window.event;
     startSwipe = EO.changedTouches[0];
   }
-
+  //обработчик окончания свайпа
   self.tEnd=function(EO) {
     EO = EO || window.event;
 		endSwipe = EO.changedTouches[0];
@@ -43,7 +44,7 @@ function GameController () {
       }
     }
   }
-
+  //Предупреждение перед выгрузкой
   function befUnload(EO) {
     EO=EO||window.event;
     console.log('11')
@@ -54,12 +55,11 @@ function GameController () {
 
   };
 
-
+  //Переключение на УРЛ из Хэша
   function switchToStateFromURLHash() {
     var URLHash=window.location.hash;
     // убираем из закладки УРЛа решётку
     var stateStr=URLHash.substr(1);
-
     if (stateStr!="" ) { // если закладка непустая, читаем из неё состояние и отображаем
       myModel.spaState={ pagename: stateStr}; // первая часть закладки - номер страницы
     }
@@ -72,7 +72,7 @@ function GameController () {
       okButton.addEventListener('click', self.switchToMainPage);
     }
   }
-
+  //Обработчки нажатия кнопок меню
   self.menuListenersAdd=function() {
     var newGameButton=document.querySelector('.new-game-button');
     newGameButton.addEventListener('click', self.newGameListener);
@@ -81,30 +81,30 @@ function GameController () {
     var recordsButton=document.querySelector('.records-button');
     recordsButton.addEventListener('click', self.switchToRecordsPage);
   }
-
+  //Изменение хэша страницы
   self.switchToState=function(newState) {
     var stateStr=newState.pagename;
     location.hash=stateStr;
   }
-
+  //Переключение на страницы SPA
   self.switchToRulesPage=function() {
     self.switchToState( {pagename:'Rules'} );
   }
   self.switchToMainPage=function() {
-    console.log('ok')
     self.switchToState( {pagename:'Main'} );
   }
   self.switchToRecordsPage=function() {
     self.switchToState({pagename:'Records'});
   }
-
+  //обработчик кнопки "новая игра"
   self.newGameListener=function() {
-    myModel.newGame();
-    self.switchToMainPage();
-    self.listenersUpdate();
-    
+    if (confirm('Весь прогресс будет утерян. Начать новую игру?')) {
+      myModel.newGame();
+      self.switchToMainPage();
+      self.listenersUpdate();
+    }
   }
-
+  //обновление обработчиков игрового поля
   self.listenersUpdate=function() {
     for (var i=0; i<myModel.map.length;i++) {
       for (var j=0; j<myModel.map[i].length; j++) {
@@ -124,7 +124,7 @@ function GameController () {
       }
     }
   }
-
+  //нажата клетка игрового поля
   self.cellClicked=function(EO) {
     EO=EO||window.event;
     self.removeListeners();
@@ -137,21 +137,21 @@ function GameController () {
     setTimeout(self.listenersUpdate, 500);
 
   } 
-
+  //курсор попал на пустую клетку игрового поля
   self.cellMouseEnter=function(EO) {
     EO=EO||window.event;
     var currentCell = EO.target;
     currentCell.className = ('cell-active');
     currentCell.style.backgroundImage='url('+myModel.currentObject.image+')';
   }
-
+  //курсор покинул пустую клетку игрового поля
   self.cellMouseLeave=function(EO) {
     EO=EO||window.event;
     var currentCell = EO.target;
     currentCell.className = ('cell');
     currentCell.style.backgroundImage='none';
   }
-  
+  //удаление обработчиков с игрового поля, происходит в конце хода
   self.removeListeners=function() {
     for (var i=0; i<myModel.map.length;i++) {
       for (var j=0; j<myModel.map[i].length; j++) {
