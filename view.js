@@ -42,7 +42,7 @@ function GameView() {
       infoHeader.style.fontFamily='Arial, Helvetica, sans-serif';
       infoHeader.style.textAlign='center';
       infoHeader.style.color='#394f4b';
-      infoHeader.style.padding='200px 20px 50px 20px';    
+      infoHeader.style.padding='40px 20px 40px 20px';    
       infoContainer.appendChild(infoHeader);
       var infoContent=document.createElement('div');
       infoContent.setAttribute('id','info-content');
@@ -55,7 +55,7 @@ function GameView() {
       okButton.setAttribute('id','ok-button');
       okButton.textContent='OK';
       okButton.style.display='block';
-      okButton.style.margin='150px auto 0 auto';
+      okButton.style.margin='10px auto 0 auto';
       okButton.style.textAlign='center';
       infoContainer.appendChild(okButton);   
     }
@@ -66,13 +66,47 @@ function GameView() {
           infoHeader.textContent='Правила';
           var infoContent=document.getElementById('info-content');
           infoContent.textContent='Triple Town - оригинальная игра-паззл, в которой вам нужно построить большой город. Чем больше ваш город, тем больше очков вы получите. Вы строите город посредством соединения трех элементов: из трех трав получите куст, из трех кустов - дерево, и так далее, пока вы не заполните город домами, храмами и замками. Вам будут постоянно мешать медведи, которые, судя по всему, против постройки города. Насколько большой будет город вашей мечты, когда экран заполнится и игра закончится?';
+          infoContent.style.paddingBottom='200px';
+          infoContent.style.fontSize='20px';
           break;
 
         case 'Records':
-          var infoHeader=document.getElementById('info-header');
-          infoHeader.textContent='Таблица рекордов'
-          var infoContent=document.getElementById('info-content');
-          infoContent.textContent='Рекордсмены';
+          var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
+          var stringName='Sadykov_TripleTownProject';
+          var recordsTable;
+      
+          $.ajax( {
+                  url: ajaxHandlerScript, type: 'POST', cache: false, dataType:'json',
+                  data: { f: 'READ', n: stringName },
+                  success: readReady, error: errorHandler
+              }
+          );  
+          
+          function readReady(callresult) {
+            if ( callresult.error!=undefined ) {             
+              alert(callresult.error);
+          }
+            else {
+              var recordsTable=JSON.parse(callresult.result);
+              var contentHTML='';
+              var infoHeader=document.getElementById('info-header');
+              infoHeader.textContent='Таблица рекордов'
+              var infoContent=document.getElementById('info-content');
+              infoContent.style.paddingBottom='10px';
+              contentHTML+="<ol>";
+              for (var i=0; i<recordsTable.length; i++) {
+                var listItem='<li>'+recordsTable[i][0]+' - '+recordsTable[i][1]+'</li>';
+                contentHTML+=listItem;
+              }
+              contentHTML+='</ol>';
+              infoContent.innerHTML=contentHTML;  
+            }
+          }
+
+          function errorHandler(jqXHR,statusStr,errorStr) {
+            alert(statusStr+' '+errorStr);
+          }
+
       }     
   }
 
@@ -266,6 +300,8 @@ function GameView() {
     image.style.animationFillMode='forwards';
   }
 
+  self.recordsUpdate=function(records) {
 
+  }
 
 }
