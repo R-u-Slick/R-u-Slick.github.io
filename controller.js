@@ -7,15 +7,53 @@ function GameController () {
   var myField = null; // внутри какого элемента DOM наша вёрстка
   var start = null;
   var stop = null;
+  var startSwipe;
+  var endSwipe;
 
   self.start=function(model,field) {
     myModel=model;
     myField=field;
+    switchToStateFromURLHash();
     window.onhashchange=switchToStateFromURLHash;
     self.listenersUpdate(myField);
     self.menuListenersAdd();
-    
+    window.onbeforeunload=befUnload;
+		document.addEventListener('touchstart', self.tStart);
+		document.addEventListener('touchend', self.tEnd);	
   }
+
+  self.tStart=function(EO) {
+    EO = EO || window.event;
+    startSwipe = EO.changedTouches[0];
+  }
+
+  self.tEnd=function(EO) {
+    EO = EO || window.event;
+		endSwipe = EO.changedTouches[0];
+		var xAbs = Math.abs(startSwipe.pageX - endSwipe.pageX);
+		var yAbs = Math.abs(startSwipe.pageY - endSwipe.pageY);
+		if (xAbs > 20 || yAbs > 20) {
+			if (xAbs > yAbs) {
+				if (endSwipe.pageX < startSwipe.pageX){
+					self.switchToRulesPage();
+				}
+				else{
+					self.switchToRecordsPage();
+				}
+      }
+    }
+  }
+
+  function befUnload(EO) {
+    EO=EO||window.event;
+    console.log('11')
+    // если количество очков не равно 0
+    if (myModel.totalPoints) {
+      EO.returnValue='А у вас есть несохранённые изменения!';
+    }
+
+  };
+
 
   function switchToStateFromURLHash() {
     var URLHash=window.location.hash;
@@ -127,6 +165,4 @@ function GameController () {
       }
     }
   }
-
-
 }
