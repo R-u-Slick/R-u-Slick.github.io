@@ -25,7 +25,7 @@ var objectArray=[];
 
 var grass=new GameObject(5, 0.6, 'images/Grass.png');
 grass.arrayAppend(objectArray);
-var bush=new GameObject(20, 0.25, 'images/Bush.png');
+var bush=new GameObject(20, 0.3, 'images/Bush.png');
 bush.arrayAppend(objectArray);
 var tree=new GameObject(100, 0.2, 'images/Tree.png');
 tree.arrayAppend(objectArray);
@@ -69,6 +69,8 @@ church.nextLevel=cathedral;
 cathedral.nextLevel=treasure;
 treasure.nextLevel=largeTreasure;
 
+
+//МОДЕЛЬ ИГРЫ
 function GameModel() {
   var self=this;
   self.map = [
@@ -458,7 +460,85 @@ function GameModel() {
     return self.map;
   }
 
+  self.isGameOver=function() {
+    for (var i=0; i<self.map.length; i++) {
+      for (var j=0; j<self.map.length; j++) {
+        if (self.map[i][j]===0) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  function AJAXNewRecord() {
+    var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
+    var updatePassword;
+    var stringName='Sadykov_TripleTownProject';
+
+    updatePassword=Math.random();
+    $.ajax( {
+            url: ajaxHandlerScript, type: 'POST', cache: false, dataType:'json',
+            data: { f: 'LOCKGET', n: stringName, p: updatePassword },
+            success: lockGetReady, error: errorHandler
+        }
+    );     
+    function lockGetReady(callresult) {
+      if ( callresult.error!=undefined ) {
+          alert(callresult.error);
+      }
+      else {
+        debugger;
+        var recordsTable=JSON.parse(callresult.result);
+        recordsTable.sort(function(a, b) {
+          return b[1] - a[1];
+        })
+        if (recordsTable.length>=20) {
+          for (var i=0; i<recordsTable.length; i++) {
+            if (recordsTable[i][1]<self.totalPoints) {
+              var name=prompt('Поздравляем! Вы попали в таблицу рекордов! Введите ваше имя');
+              recordsTable.push([name, self.totalPoints]);
+              recordsTable.sort(function(a, b) {
+                return b[1] - a[1];
+              })
+              recordsTable=recordsTable.slice(0,20);
+              break;
+            }
+            if (i===recordsTable.length-1) {
+              alert('Игра окончена! К сожалению вы не попали в таблицу рекордов');
+            }     
+          }
+        }
+        else {
+          var name=prompt('Поздравляем! Вы попали в таблицу рекордов! Введите ваше имя');
+          recordsTable.push([name, self.totalPoints]);
+          recordsTable.sort(function(a, b) {
+            return b[1] - a[1];
+          })
+        }
+
+        $.ajax( {
+          url : ajaxHandlerScript, type: 'POST', cache: false, dataType:'json',
+          data : { f: 'UPDATE', n: stringName, v: JSON.stringify(recordsTable), p: updatePassword },
+          success : updateReady, error : errorHandler
+        }
+        );
+      }
+      self.newGame(); 
+    }
+
+    function updateReady(callresult) {
+      if ( callresult.error!=undefined )
+          alert(callresult.error);
+    }
+
+    function errorHandler(jqXHR,statusStr,errorStr) {
+      alert(statusStr+' '+errorStr);
+    }
   
+  }
+  
+
   self.nextMove=function(row, column) {
     self.map[row][column]=self.currentObject;
     self.totalPoints+=self.currentObject.points;
@@ -466,9 +546,12 @@ function GameModel() {
     self.bearMove();
     self.matchCheck(row, column, self.currentObject);
     setTimeout(self.updateView, 500);
+    if (self.isGameOver()) {
+      AJAXNewRecord();
+
+    }
     self.currentObject=self.generateRandom(objectArray);
-  }
-  
+  } 
 };
 
 
