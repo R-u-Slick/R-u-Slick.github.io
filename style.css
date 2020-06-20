@@ -191,6 +191,11 @@
     flex-direction: column;
     justify-content: flex-start;
   }
+  
+  .game-main {
+    width: 908px;
+    height: 1094px;
+  }
 
   .menu {
     display: flex;
@@ -198,27 +203,23 @@
   }
    
   .upper-menu {
-    margin-bottom: 20px;
+    margin: 0 auto 20px auto;
   }
 
   .points {
-    width: 450px;
-    height: 80px;
   }
 
   .current-item {
-    width: 450px;
-    height: 80px;
   }
 
   .current-item__text {
-    font-size: 22px;
+    font-size: 25px;
     line-height: 80px;
   }
 
 
   .points-counter {
-    font-size: 30px;
+    font-size: 32px;
     line-height: 80px;
   }
 
@@ -233,10 +234,6 @@
 @media (min-width:1001px) {
   .menu {
     padding-top: 350px;
-  }
-
-  .upper-menu {
-    justify-content: space-evenly;
   }
 
   .points {
@@ -264,6 +261,13 @@
     height: 50px;
   }
 
+  .upper-menu {
+    display:flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+  }
+  
+
 
 }
 
@@ -276,10 +280,6 @@ body {
   background-image: url(images/BG.png);
 }
 
-.upper-menu {
-  display:flex;
-  flex-direction: row;
-}
 
 .points {
   margin-bottom: 5px;
