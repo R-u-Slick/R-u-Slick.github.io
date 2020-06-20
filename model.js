@@ -1,5 +1,6 @@
 "use strict"
-
+//ОПИСАНИЕ ОБЪЕКТОВ
+//функция-конструктор класса игрового объекта
 function GameObject(points, rate, imageSource) {
   this.points=points;
   this.rate=rate;
@@ -11,25 +12,16 @@ function GameObject(points, rate, imageSource) {
   }
 }
 
-function BearObject (points, rate, imageSource) {
-  GameObject.call(this);
-  this.rate=rate;
-  this.points=points;
-  this.image='images/Bear.png';
-  this.move=function(row, column) {
+var objectArray=[]; //массив со всеми игровыми объектами, нужен для рандома
 
-  }
-}
-
-var objectArray=[];
-
-var grass=new GameObject(5, 0.6, 'images/Grass.png');
+//создадим игровые объекты и добавим их в массив
+var grass=new GameObject(5, 1, 'images/Grass.png');
 grass.arrayAppend(objectArray);
-var bush=new GameObject(20, 0.3, 'images/Bush.png');
+var bush=new GameObject(20, 0.6, 'images/Bush.png');
 bush.arrayAppend(objectArray);
-var tree=new GameObject(100, 0.2, 'images/Tree.png');
+var tree=new GameObject(100, 0.3, 'images/Tree.png');
 tree.arrayAppend(objectArray);
-var hut=new GameObject(500, 0.01, 'images/Hut.png');
+var hut=new GameObject(500, 0.15, 'images/Hut.png');
 hut.arrayAppend(objectArray);
 var house=new GameObject(1500, 0, 'images/House.png');
 house.arrayAppend(objectArray);
@@ -41,7 +33,7 @@ var floatingCastle=new GameObject(100000, 0, 'images/Floating_castle.png');
 floatingCastle.arrayAppend(objectArray);
 var tripleCastle=new GameObject(500000, 0, 'images/Triple_castle.png');
 tripleCastle.arrayAppend(objectArray);
-var bear=new BearObject(0, 0.05, 'images/Bear.png');
+var bear=new GameObject(0, 0.07, 'images/Bear.png');
 bear.arrayAppend(objectArray);
 var tombstone=new GameObject(0, 0, 'images/Tombstone.png');
 tombstone.arrayAppend(objectArray);
@@ -73,6 +65,7 @@ treasure.nextLevel=largeTreasure;
 //МОДЕЛЬ ИГРЫ
 function GameModel() {
   var self=this;
+  //игровая карта
   self.map = [
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0],
@@ -81,14 +74,15 @@ function GameModel() {
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0]
   ]
-  self.currentObject=null;
+  self.currentObject=null;  //текущий объект
 
-  var myView = null;
+  var myView = null; 
 
   self.totalPoints = 0;
 
   self.spaState ={};
 
+  //изменение состояния в зависимости от хэша
   self.spaStateChanged=function(){
     switch (self.spaState.pagename) {
       case 'Rules':
@@ -102,13 +96,13 @@ function GameModel() {
         break;
     }
   }
-
+  //инициализация
   self.start=function(view) {
       myView=view;
       self.mapGenerate();
       self.currentObject=self.generateRandom(objectArray);
   }
-
+  //новая игра. Срабатывает при нажатии кнопки новая игра или геймовере
   self.newGame=function() {
     self.mapGenerate();
     self.currentObject=self.generateRandom(objectArray);
@@ -120,7 +114,7 @@ function GameModel() {
     if ( myView )
       myView.update();
   };
-//ПЕРЕМЕЩЕНИЕ МЕДВЕДЕЙ
+//перемещение медведей
   self.bearAlreadyMoved=[]//массив с коорд. медеведей, кторые уже перемещались за данный ход
   //функция, определяющия в каких направлениях может двиагться медведь
   self.bearCanMove=function(row, column) {
@@ -138,10 +132,9 @@ function GameModel() {
     if (self.map[row-1]&&(self.map[row-1][column]===0)) {
       moveDirections.push(bearMoveUp);
     }
-    return moveDirections;
-    
+    return moveDirections;//массив с возможными направлениями для движения медведя
   }
-
+  //функции перемещения медведя
   function bearMoveRight(row, column) {
     self.map[row][column]=0;
     self.map[row][column+1]=bear;
@@ -170,11 +163,13 @@ function GameModel() {
     self.bearAlreadyMoved.push(bearNewCoord);
     myView.bearMoveUp(row, column);
   }
-
+  //функция перемещения медведя
   self.bearMove=function() {
+    //перебираем всю карту и ищем медведей
     for (var i=0; i<self.map.length; i++) {
       for (var j=0; j<self.map[i].length; j++) {
         var currentObject=self.map[i][j];
+        //если объект медведь, проверяем двигался ли он уже за этот ход
         if (currentObject===bear) {
           var bearMoved=false;
           for (var g=0; g<self.bearAlreadyMoved.length;g++) {
@@ -185,12 +180,14 @@ function GameModel() {
           if (bearMoved){
             continue;
           }
-
+          //если медведь не двигался - ищем возможные направления его движения
           var moveDirections=self.bearCanMove(i, j);
+          //если медведь может двигаться хоть куда-нибудь - выбираем рандомом выбираем куда идти
           if (moveDirections.length>0) {
             var randomMove=randomDiap(0, moveDirections.length-1);
             moveDirections[randomMove](i, j);
           }
+          //далее ищем медведей по соседству и определяем могут ли они двигаться. Если не могут - превращаем медведя в могилку
           else {  
             if (!horizontalCheck(i,j)&&!verticalCheck(i,j)) {
               self.map[i][j]=tombstone;
@@ -275,14 +272,15 @@ function GameModel() {
           }
       }
     }
-    self.bearAlreadyMoved=[];
+    self.bearAlreadyMoved=[];//обнуляем список медведей которые уже ходили
   }
 
 //ПРОВЕРКА СОВПАДЕНИЙ
   self.matchCheck=function(row, column, object) {
-    var matchCount = 0;
-    var matchRowArray = [];
-    var matchColumnArray = [];
+    var matchCount = 0;//счетчик совпадений
+    var matchRowArray = [];//координаты совпавших элементов по Y
+    var matchColumnArray = [];//координаты совпавших элементов по Х
+    //если объект медведь, то совпадения не ищем, тк он ни с чем не объеденяется
     if (object===bear) {
       return;      
     }
@@ -338,15 +336,17 @@ function GameModel() {
       }
     }
   } 
+    //если совпадений более 2-х - помещаем объект след уровня, старые объекты стираем
     if (matchCount>=2) {
       for (var i=0; i<matchRowArray.length; i++) {
         self.map[matchRowArray[i]][matchColumnArray[i]]=0;
       }
       var nextObject=object.nextLevel;
       self.map[row][column]=nextObject;
-      myView.objectsCombine(row, column, matchRowArray, matchColumnArray);
-      myView.pointsGained(row, column, nextObject);
-      self.matchCheck(row, column, nextObject);
+      myView.objectsCombine(row, column, matchRowArray, matchColumnArray);//анимация объединения объектов
+      myView.pointsGained(row, column, nextObject);//анимация добавления очков
+      self.matchCheck(row, column, nextObject);//заново запустим поиск совпадений
+      //в зависимости от кол-ва совпавших элементов  разное кол-во очков
       switch (matchCount) {
         case 2:
           self.totalPoints+=nextObject.points;
@@ -372,12 +372,11 @@ function GameModel() {
       }
     }
     else {
-      self.map[row][column]=object;
+      self.map[row][column]=object; // если совпадений не было - ставим в клетку просто объект
       
     }
   }
-
-  //СОЗДАНИЕ СЛУЧАЙНОГО ОБЪЕКТА
+  //создание случайного объекта
   self.generateRandom=function(array) {  
     var chosenItems=[];
     var randomNumber = Math.random();
@@ -406,14 +405,14 @@ function GameModel() {
     return chosenItems[minIndex];
     }
   }
-
+  //Рандом
   function randomDiap(n,m) {
     return Math.floor(
       Math.random()*(m-n+1)
       )+n;
   }
   
-  //функция генерации новой карты
+  //Функция генерации новой карты
   self.mapGenerate=function() {
     self.map = [
       [0, 0, 0, 0, 0, 0],
@@ -459,7 +458,7 @@ function GameModel() {
     }
     return self.map;
   }
-
+  //функция определения геймовера
   self.isGameOver=function() {
     for (var i=0; i<self.map.length; i++) {
       for (var j=0; j<self.map.length; j++) {
@@ -470,12 +469,11 @@ function GameModel() {
     }
     return true;
   }
-
+  //функция записи в AJAX
   function AJAXNewRecord() {
     var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
     var updatePassword;
     var stringName='Sadykov_TripleTownProject';
-
     updatePassword=Math.random();
     $.ajax( {
             url: ajaxHandlerScript, type: 'POST', cache: false, dataType:'json',
@@ -516,7 +514,6 @@ function GameModel() {
             return b[1] - a[1];
           })
         }
-
         $.ajax( {
           url : ajaxHandlerScript, type: 'POST', cache: false, dataType:'json',
           data : { f: 'UPDATE', n: stringName, v: JSON.stringify(recordsTable), p: updatePassword },
@@ -524,7 +521,7 @@ function GameModel() {
         }
         );
       }
-      self.newGame(); 
+      self.newGame(); //новая игра
     }
 
     function updateReady(callresult) {
@@ -538,25 +535,22 @@ function GameModel() {
   
   }
   
-
+  //новый ход
   self.nextMove=function(row, column) {
-    self.map[row][column]=self.currentObject;
-    self.totalPoints+=self.currentObject.points;
-    myView.placeObject(row, column, self.currentObject);
-    self.bearMove();
-    self.matchCheck(row, column, self.currentObject);
-    setTimeout(self.updateView, 500);
+    self.map[row][column]=self.currentObject; //ставим в клетку текущий объект
+    self.totalPoints+=self.currentObject.points;//добавляем очки за него
+    myView.placeObject(row, column, self.currentObject);//отображаем объект
+    self.bearMove();//двигаем медведей
+    self.matchCheck(row, column, self.currentObject);//проверяем совпадения
+    setTimeout(self.updateView, 500);//обновляем отображение
+    //если гамовер-записываем рекорд
     if (self.isGameOver()) {
       AJAXNewRecord();
-
     }
-    self.currentObject=self.generateRandom(objectArray);
-  } 
+    self.currentObject=self.generateRandom(objectArray);//генерируем случайный объект для след хода
+  }
+
 };
-
-
-
-
 
 
 
