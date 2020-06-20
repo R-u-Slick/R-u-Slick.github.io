@@ -19,7 +19,7 @@ function GameView() {
     self.update();
     playSound(ambientSound);
   }
-
+  //показать меню с правилами или рекордами
   self.showInfo=function(infoType) {
     if (!document.getElementById('info-container')) {  
       var gameMain=document.querySelector('.game-main');
@@ -59,7 +59,7 @@ function GameView() {
       okButton.style.textAlign='center';
       infoContainer.appendChild(okButton);   
     }
-
+    //в зависимости нажатой кнопки, будем менять содержимок
       switch (infoType) {
         case 'Rules':
           var infoHeader=document.getElementById('info-header');
@@ -74,7 +74,7 @@ function GameView() {
           var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
           var stringName='Sadykov_TripleTownProject';
           var recordsTable;
-      
+          //Загружаем таблицу рекордов с сервера
           $.ajax( {
                   url: ajaxHandlerScript, type: 'POST', cache: false, dataType:'json',
                   data: { f: 'READ', n: stringName },
@@ -86,6 +86,7 @@ function GameView() {
             if ( callresult.error!=undefined ) {             
               alert(callresult.error);
           }
+          //создадим нумерованный список с рекордами
             else {
               var recordsTable=JSON.parse(callresult.result);
               var contentHTML='';
@@ -102,14 +103,12 @@ function GameView() {
               infoContent.innerHTML=contentHTML;  
             }
           }
-
           function errorHandler(jqXHR,statusStr,errorStr) {
             alert(statusStr+' '+errorStr);
           }
-
       }     
   }
-
+  //анимация убирания меню
   self.hideInfo=function() {
     if (document.getElementById('info-container')) {
       var infoContainer=document.getElementById('info-container');
@@ -125,7 +124,7 @@ function GameView() {
       gameMain.removeChild(infoContainer);
     }
   }
-
+  //обновление игрового поля
   self.update=function() {
     var currentItemImage=document.querySelector('.current-item-image');
     currentItemImage.setAttribute('src', myModel.currentObject.image);
@@ -144,14 +143,17 @@ function GameView() {
         }
         //Елси в клетке в моделе что-то есть добавляем элемент в DOM
         if (myModel.map[i][j]) {
+          //если уже имеется картинка - меняем src
           if (fieldElement.querySelector('img')) {
             fieldElement.querySelector('img').setAttribute('src',myModel.map[i][j].image); 
             fieldElement.querySelector('img').style.animationName=''; 
+            //если есть подсказка с кол-вом очков-удаляем
             if(fieldElement.querySelector('p')) {
               var points=fieldElement.querySelector('p');
               fieldElement.removeChild(points);
             }
           }
+          //если картнки нет - добавляем её
           else {
             var objectImage=document.createElement('img');
             objectImage.setAttribute('src',myModel.map[i][j].image);
@@ -161,7 +163,7 @@ function GameView() {
       }
     }
   }
-
+  //анимация перемещения мишек
   self.bearMoveRight=function(row, column) {
     var elementID=String(row)+String(column);
     var fieldElement=document.getElementById(elementID);
@@ -171,7 +173,6 @@ function GameView() {
     image.style.animationTimingFunction='linear';
    image.style.animationFillMode='forwards';
   }
-
   self.bearMoveLeft=function(row, column) {
     var elementID=String(row)+String(column);
     var fieldElement=document.getElementById(elementID);
@@ -181,7 +182,6 @@ function GameView() {
     image.style.animationTimingFunction='linear';
    image.style.animationFillMode='forwards';
   }
-
   self.bearMoveDown=function(row, column) {
     var elementID=String(row)+String(column);
     var fieldElement=document.getElementById(elementID);
@@ -191,7 +191,6 @@ function GameView() {
     image.style.animationTimingFunction='linear';
    image.style.animationFillMode='forwards';
   }
-
   self.bearMoveUp=function(row, column) {
     var elementID=String(row)+String(column);
     var fieldElement=document.getElementById(elementID);
@@ -202,8 +201,7 @@ function GameView() {
    image.style.animationFillMode='forwards';
   }
   
-
-
+  //анимация размещения объекта
   self.placeObject=function(row, column, object) {
     if (object===bear) {
       playSound(placeBearSound);
@@ -218,7 +216,7 @@ function GameView() {
     fieldElement.appendChild(objectImage);
     self.pointsGained(row, column,object);
   }
-
+  //анимация начисления очков
   self.pointsGained=function(row, column, object) {
     if (object.points!==0) {
       var elementID=String(row)+String(column);
@@ -243,9 +241,7 @@ function GameView() {
       fieldElement.appendChild(points);
     }
   }
-
-  
-
+//отображение повышения уровня объекта
   self.levelUp=function(row,column,object) {
     var elementID=String(row)+String(column);
     var fieldElement=document.getElementById(elementID);
@@ -253,7 +249,7 @@ function GameView() {
     self.pointsGained(row, column, object);
         
   }
-
+  //анимация объединения одинаковых объектов
   self.objectsCombine=function(row, column, matchRowArray, matchColumnArray) {
     playSound(matchSound);
     window.navigator.vibrate(100);
@@ -299,9 +295,4 @@ function GameView() {
     image.style.animationTimingFunction='linear';
     image.style.animationFillMode='forwards';
   }
-
-  self.recordsUpdate=function(records) {
-
-  }
-
 }
