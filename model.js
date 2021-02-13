@@ -33,7 +33,7 @@ var floatingCastle=new GameObject(100000, 0, 'images/Floating_castle.png');
 floatingCastle.arrayAppend(objectArray);
 var tripleCastle=new GameObject(500000, 0, 'images/Triple_castle.png');
 tripleCastle.arrayAppend(objectArray);
-var bear=new GameObject(0, 0.07, 'images/Bear.png');
+var bear=new GameObject(0, 0.03, 'images/Bear.png');
 bear.arrayAppend(objectArray);
 var tombstone=new GameObject(0, 0, 'images/Tombstone.png');
 tombstone.arrayAppend(objectArray);
